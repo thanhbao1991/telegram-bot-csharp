@@ -18,6 +18,7 @@ class Program
             var receiverOptions = new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
 
             botClient.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cts.Token);
+            Console.WriteLine(cts.Token);
 
             Console.ReadLine();
         }
@@ -31,9 +32,15 @@ class Program
 
     static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken token)
     {
-        if (update.Message is { } message && message.Text != null)
+
+        if (update == null || update.Message == null) return;
+        Console.WriteLine($"From ID: {update.Message?.Chat.Id} - Text: {update.Message?.Text}");
+
+        // if (update.Message is { } message && message.Text != null)
         {
-            await bot.SendTextMessageAsync(message.Chat.Id, "Hello 👋", cancellationToken: token);
+            await bot.SendTextMessageAsync(
+                update.Message?.Chat.Id,
+                "Hello 👋", cancellationToken: token);
         }
     }
 
