@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -8,17 +5,28 @@ using Telegram.Bot.Types.Enums;
 
 class Program
 {
-    static string TELEGRAM_TOKEN = Environment.GetEnvironmentVariable("TELEGRAM_TOKEN");
+    static string TELEGRAM_TOKEN =
+     Environment.GetEnvironmentVariable("TELEGRAM_TOKEN");
     static TelegramBotClient botClient = new TelegramBotClient(TELEGRAM_TOKEN);
 
     static async Task Main()
     {
         Console.WriteLine("Bot started...");
-        using var cts = new CancellationTokenSource();
-        var receiverOptions = new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
+        try
+        {
+            using var cts = new CancellationTokenSource();
+            var receiverOptions = new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
 
-        botClient.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cts.Token);
-        Console.ReadLine();
+            botClient.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cts.Token);
+
+            Console.ReadLine();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            Console.ReadLine();
+
+        }
     }
 
     static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken token)
