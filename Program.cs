@@ -26,7 +26,8 @@ botClient.StartReceiving(
 );
 
 // Minimal API HTTP endpoint để Render thấy app đang chạy
-app.MapGet("/", () => "Bot is running!");
+//app.MapGet("/", () => "Bot is running!");
+app.MapMethods("/", new[] { "GET", "HEAD" }, () => Results.Text("Bot is running!", "text/plain"));
 app.Run();
 
 static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken token)
