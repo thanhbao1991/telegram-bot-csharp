@@ -51,13 +51,18 @@ class Program
 
     static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken token)
     {
+        Console.WriteLine("🟟 Received an update");
+
         if (update == null || update.Message == null)
+        {
+            Console.WriteLine("⚠️ Update or Message is null");
             return;
+        }
 
         var chatId = update.Message.Chat.Id;
         var text = update.Message.Text;
 
-        Console.WriteLine($"🟟 From ID: {chatId} - Text: {text}");
+        Console.WriteLine($"🟟 From: {chatId} - Text: {text}");
 
         await bot.SendTextMessageAsync(
             chatId: chatId,
