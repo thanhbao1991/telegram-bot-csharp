@@ -4,8 +4,8 @@ WORKDIR /app
 COPY . .
 RUN dotnet publish TelegramBotCSharp-Render.csproj -c Release -o out
 
-# Runtime stage
-FROM mcr.microsoft.com/dotnet/runtime:8.0
+# Runtime stage (đây là chỗ quan trọng)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
 ENV ASPNETCORE_URLS=http://+:8080
