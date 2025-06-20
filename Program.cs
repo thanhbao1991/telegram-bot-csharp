@@ -11,7 +11,9 @@ class Program
     static async Task Main()
     {
         Console.WriteLine("Bot started...");
-
+        Console.WriteLine("🟟 Detecting public IP...");
+        var ip = new HttpClient().GetStringAsync("https://api.ipify.org").Result;
+        Console.WriteLine($"🟟 Public IP: {ip}");
         // Kiểm tra token có được truyền đúng không
         if (string.IsNullOrEmpty(TELEGRAM_TOKEN))
         {
