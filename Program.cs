@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Sockets;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -11,18 +13,22 @@ class Program
     static async Task Main()
     {
         Console.WriteLine("Bot started...");
-        Console.WriteLine("🟟 Detecting public IP...");
-        var ip = new HttpClient().GetStringAsync("https://api.ipify.org").Result;
-        Console.WriteLine($"🟟 Public IP: {ip}");
+
+        //Console.WriteLine("🟟 Detecting public IP...");
+        //var ip = new HttpClient().GetStringAsync("https://api.ipify.org").Result;
+        //Console.WriteLine($"🟟 Public IP: {ip}");
+
         // Kiểm tra token có được truyền đúng không
-        if (string.IsNullOrEmpty(TELEGRAM_TOKEN))
-        {
-            Console.WriteLine("❌ TELEGRAM_TOKEN is null or empty. Check environment variable.");
-        }
-        else
-        {
-            Console.WriteLine($"✅ TELEGRAM_TOKEN = {TELEGRAM_TOKEN}");
-        }
+        //if (string.IsNullOrEmpty(TELEGRAM_TOKEN))
+        //{
+        //    Console.WriteLine("❌ TELEGRAM_TOKEN is null or empty. Check environment variable.");
+        //}
+        //else
+        //{
+        //    Console.WriteLine($"✅ TELEGRAM_TOKEN = {TELEGRAM_TOKEN}");
+        //}
+        var listener = new TcpListener(IPAddress.Any, int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080"));
+        listener.Start();
 
         try
         {
