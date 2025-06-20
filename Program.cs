@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums
+using Telegram.Bot.Types.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
