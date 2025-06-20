@@ -1,87 +1,44 @@
-using System.Net;
-using System.Net.Sockets;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-class Program
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+string token = Environment.GetEnvironmentVariable("TELEGRAM_TOKEN") ?? throw new Exception("BOT_TOKEN is missing");
+TelegramBotClient botClient = new TelegramBotClient(token);
+
+// Start bot polling
+using var cts = new CancellationTokenSource();
+var receiverOptions = new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
+
+botClient.StartReceiving(
+    updateHandler: HandleUpdateAsync,
+    pollingErrorHandler: HandleErrorAsync,
+    receiverOptions: receiverOptions,
+    cancellationToken: cts.Token
+);
+
+// Minimal API HTTP endpoint để Render thấy app đang chạy
+app.MapGet("/", () => "Bot is running!");
+app.Run();
+
+static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken token)
 {
-    static string TELEGRAM_TOKEN = Environment.GetEnvironmentVariable("TELEGRAM_TOKEN");
-    static TelegramBotClient botClient = new TelegramBotClient(TELEGRAM_TOKEN);
-
-    static async Task Main()
+    if (update?.Message?.Text != null)
     {
-        Console.WriteLine("Bot started...");
-
-        //Console.WriteLine("🟟 Detecting public IP...");
-        //var ip = new HttpClient().GetStringAsync("https://api.ipify.org").Result;
-        //Console.WriteLine($"🟟 Public IP: {ip}");
-
-        // Kiểm tra token có được truyền đúng không
-        //if (string.IsNullOrEmpty(TELEGRAM_TOKEN))
-        //{
-        //    Console.WriteLine("❌ TELEGRAM_TOKEN is null or empty. Check environment variable.");
-        //}
-        //else
-        //{
-        //    Console.WriteLine($"✅ TELEGRAM_TOKEN = {TELEGRAM_TOKEN}");
-        //}
-        var listener = new TcpListener(IPAddress.Any, int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080"));
-        listener.Start();
-
-        try
-        {
-            using var cts = new CancellationTokenSource();
-
-            var receiverOptions = new ReceiverOptions
-            {
-                AllowedUpdates = Array.Empty<UpdateType>() // Nhận tất cả các loại update
-            };
-
-            botClient.StartReceiving(
-                updateHandler: HandleUpdateAsync,
-                pollingErrorHandler: HandleErrorAsync,
-                receiverOptions: receiverOptions,
-                cancellationToken: cts.Token
-            );
-
-            Console.WriteLine("Bot is listening. Press Enter to exit.");
-            Console.ReadLine();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("❌ EXCEPTION:");
-            Console.WriteLine(ex.ToString());
-            Console.ReadLine();
-        }
-    }
-
-    static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken token)
-    {
-        Console.WriteLine("🟟 Received an update");
-
-        if (update == null || update.Message == null)
-        {
-            Console.WriteLine("⚠️ Update or Message is null");
-            return;
-        }
-
         var chatId = update.Message.Chat.Id;
         var text = update.Message.Text;
-
-        Console.WriteLine($"🟟 From: {chatId} - Text: {text}");
-
-        await bot.SendTextMessageAsync(
-            chatId: chatId,
-            text: "🟟 Hello from Render!",
-            cancellationToken: token
-        );
+        Console.WriteLine($"Message from {chatId}: {text}");
+        await bot.SendTextMessageAsync(chatId, $"You said: {text}", cancellationToken: token);
     }
+}
 
-    static Task HandleErrorAsync(ITelegramBotClient bot, Exception ex, CancellationToken token)
-    {
-        Console.WriteLine($"❌ Error: {ex.Message}");
-        return Task.CompletedTask;
-    }
+static Task HandleErrorAsync(ITelegramBotClient bot, Exception ex, CancellationToken token)
+{
+    Console.WriteLine($"Error: {ex.Message}");
+    return Task.CompletedTask;
 }
